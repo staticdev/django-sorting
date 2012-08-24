@@ -2,23 +2,26 @@ from django import template
 
 register = template.Library()
 
-@register.inclusion_tag('sorting/sort_link_frag.html', takes_context=True)            
+@register.inclusion_tag('sorting/sort_link_frag.html', takes_context=True)
 def sort_link(context, link_text, sort_field, visible_name=None):
     """Usage: {% sort_link "link text" "field_name" %}
     Usage: {% sort_link "link text" "field_name" "Visible name" %}
     """
     is_sorted = False
     sort_order = None
+    sort_class = 'unsorted'
     orig_sort_field = sort_field
     if context.get('current_sort_field') == sort_field:
         sort_field = '-%s'%sort_field
         visible_name = '-%s'%(visible_name or orig_sort_field)
         is_sorted = True
         sort_order = 'down'
+        sort_class = 'sorted down'
     elif context.get('current_sort_field') == '-'+sort_field:
         visible_name = '%s'%(visible_name or orig_sort_field)
         is_sorted = True
         sort_order = 'up'
+        sort_class = 'sorted up'
 
     if visible_name:
         if 'request' in context:
@@ -44,7 +47,7 @@ def sort_link(context, link_text, sort_field, visible_name=None):
 
         
     return {'link_text':link_text, 'sort_field':sort_field, 'extra_vars':extra_vars,
-            'sort_order':sort_order, 'is_sorted':is_sorted, 'visible_name':visible_name
+            'sort_order':sort_order, 'is_sorted':is_sorted, 'visible_name':visible_name, 'sort_class': sort_class
             }
     
 
@@ -95,7 +98,3 @@ class SortedQuerysetNode(template.Node):
         else:
             context['getsortvars'] = ''
         return ''
-
-    
-        
-        
