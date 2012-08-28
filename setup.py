@@ -2,7 +2,7 @@ import ez_setup
 ez_setup.use_setuptools()
 from setuptools import setup, find_packages
 setup(
-    name = "django-sorting",
+    name = "django-sort",
     version = "0.2",
     packages = ["sorting"],
     py_modules = ['setup', 'ez_setup'],
