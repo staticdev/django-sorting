@@ -8,19 +8,19 @@ def sort_link(context, link_text, sort_field, visible_name=None):
     Usage: {% sort_link "link text" "field_name" "Visible name" %}
     """
     is_sorted = False
-    sort_order = None
+    ascending = None
     sort_class = 'sortable'
     orig_sort_field = sort_field
     if context.get('current_sort_field') == sort_field:
         sort_field = '-%s'%sort_field
         visible_name = '-%s'%(visible_name or orig_sort_field)
         is_sorted = True
-        sort_order = 'down'
+        ascending = False
         sort_class += ' sorted descending'
     elif context.get('current_sort_field') == '-'+sort_field:
         visible_name = '%s'%(visible_name or orig_sort_field)
         is_sorted = True
-        sort_order = 'up'
+        ascending = True
         sort_class += ' sorted ascending'
 
     if visible_name:
@@ -47,7 +47,7 @@ def sort_link(context, link_text, sort_field, visible_name=None):
 
         
     return {'link_text':link_text, 'sort_field':sort_field, 'extra_vars':extra_vars,
-            'sort_order':sort_order, 'is_sorted':is_sorted, 'visible_name':visible_name, 'sort_class': sort_class
+            'ascending':ascending, 'is_sorted':is_sorted, 'visible_name':visible_name, 'sort_class': sort_class
             }
     
 
