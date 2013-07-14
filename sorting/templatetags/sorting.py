@@ -2,26 +2,31 @@ from django import template
 
 register = template.Library()
 
+# TO-DO: receive a list and make a for in the template
 @register.inclusion_tag('sorting/sort_link_frag.html', takes_context=True)
-def sort_link(context, link_text, sort_field, visible_name=None):
-    """Usage: {% sort_link "link text" "field_name" %}
-    Usage: {% sort_link "link text" "field_name" "Visible name" %}
+def sort_link(context, text, sort_field, visible_name=None):
+    """Usage: {% sort_link "text" "field_name" %}
+    Usage: {% sort_link "text" "field_name" "Visible name" %}
     """
-    is_sorted = False
+    # general and outside FOR
+    sorted_fields = False
+    # specific to the field
     ascending = None
-    sort_class = 'sortable'
+    # specific to the field
+    class_attrib = 'sortable'
+    # specific to the field
     orig_sort_field = sort_field
     if context.get('current_sort_field') == sort_field:
         sort_field = '-%s'%sort_field
         visible_name = '-%s'%(visible_name or orig_sort_field)
-        is_sorted = True
+        sorted_fields = True
         ascending = False
-        sort_class += ' sorted descending'
+        class_attrib += ' sorted descending'
     elif context.get('current_sort_field') == '-'+sort_field:
         visible_name = '%s'%(visible_name or orig_sort_field)
-        is_sorted = True
+        sorted_fields = True
         ascending = True
-        sort_class += ' sorted ascending'
+        class_attrib += ' sorted ascending'
 
     if visible_name:
         if 'request' in context:
@@ -46,8 +51,8 @@ def sort_link(context, link_text, sort_field, visible_name=None):
             extra_vars = ''
 
         
-    return {'link_text':link_text, 'sort_field':sort_field, 'extra_vars':extra_vars,
-            'ascending':ascending, 'is_sorted':is_sorted, 'visible_name':visible_name, 'sort_class': sort_class
+    return {'text':text, 'sort_field':sort_field, 'extra_vars':extra_vars,
+            'ascending':ascending, 'sorted_fields':sorted_fields, 'visible_name':visible_name, 'class_attrib': class_attrib
             }
     
 
