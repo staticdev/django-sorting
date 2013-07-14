@@ -2,7 +2,7 @@
 <!-- TO-DO: receive a list and make a for in the template -->
 <th scope="col"{% if sort_class %} class="{{ sort_class }}"{% endif %}>
   <div class="sortoptions">
-    <a href="./?sort_by={% if visible_name %}{{visible_name}}{% else %}{{ sort_field }}{% endif %}" class="toggle {% if ascending %}ascending{% else %}descending{% endif %}" title="{% trans "Toggle sorting" %}"></a>
+    <a href="./?sort_by={% if visible_name %}{{visible_name}}{% else %}{{ sort_field }}{% endif %}" class="toggle {% if ascending %}icon-chevron-up{% else %}icon-chevron-down{% endif %}" title="{% trans "Toggle sorting" %}"></a>
   </div>
   <div class="text">
     <a href="./?sort_by={% if visible_name %}{{visible_name}}{% else %}{{ sort_field }}{% endif %}{{ extra_vars }}">{{ link_text }}</a>
