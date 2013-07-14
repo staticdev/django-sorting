@@ -16,12 +16,12 @@ def sort_link(context, link_text, sort_field, visible_name=None):
         visible_name = '-%s'%(visible_name or orig_sort_field)
         is_sorted = True
         sort_order = 'down'
-        sort_class += 'sorted descending'
+        sort_class += ' sorted descending'
     elif context.get('current_sort_field') == '-'+sort_field:
         visible_name = '%s'%(visible_name or orig_sort_field)
         is_sorted = True
         sort_order = 'up'
-        sort_class += 'sorted ascending'
+        sort_class += ' sorted ascending'
 
     if visible_name:
         if 'request' in context:
