@@ -1,0 +1,22 @@
+{% load i18n %}
+
+{% for header in result_headers %}
+<th scope="col" class="{{ header.class_attrib }}">
+    {% if header.sortable %}
+      {% if sorted_fields %}
+      <div class="sortoptions">
+        <!-- header.url_toggle deve ser igual a ./?sort_by={ if visible_name }{visible_name}{ else }{{ sort_field }}{ endif } -->
+        <a href="{{ header.url_toggle }}" class="toggle {% if ascending %}ascending{% else %}descending{% endif %}" title="{% trans "Toggle sorting" %}"></a>
+      </div>
+      {% endif %}
+    {% endif %}
+  <div class="text">
+    <!-- header.text|capfirst deve ser igual a text -->
+    <!-- header.url_primary deve ser igual a ./?sort_by={ if visible_name }{visible_name}{% else %}{ sort_field }{ endif }{ extra_vars } -->
+    {% if header.sortable %}<a href="{{ header.url_primary }}">{{ header.text|capfirst }}</a>
+    {% else %}<span>{{ header.text|capfirst }}</span>
+    {% endif %}
+  </div>
+  <div class="clear"></div>
+</th>
+{% endfor %}
