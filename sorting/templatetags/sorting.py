@@ -1,6 +1,96 @@
 from django import template
+from django.utils.html import format_html
+from django.utils.safestring import mark_safe
+
+from sorting.util import label_for_field
+from sorting.views import ORDER_VAR
 
 register = template.Library()
+
+
+def result_headers(cl):
+    """
+    Generates the list column headers.
+    """
+    ordering_field_columns = cl.get_ordering_field_columns()
+    for i, field_name in enumerate(cl.list_display):
+        text, attr = label_for_field(field_name, cl.model, return_attr=True)
+        if attr:
+            # Potentially not sortable
+
+            # if the field is the action checkbox: no sorting and special class
+            if field_name == 'action_checkbox':
+                yield {
+                    "text": text,
+                    "class_attrib": mark_safe(' class="action-checkbox-column"'),
+                    "sortable": False,
+                }
+                continue
+
+#            if outros_fields:
+                # Not sortable
+#                yield {
+#                    "text": text,
+#                    "class_attrib": format_html(' class="column-{0}"', field_name),
+#                    "sortable": False,
+#                }
+#                continue
+
+        # OK, it is sortable if we got this far
+        th_classes = ['sortable', 'column-{0}'.format(field_name)]
+        order_type = ''
+        new_order_type = 'asc'
+        sorted = False
+        # Is it currently being sorted on?
+        if i in ordering_field_columns:
+            sorted = True
+            order_type = ordering_field_columns.get(i).lower()
+            th_classes.append('sorted %sending' % order_type)
+            new_order_type = {'asc': 'desc', 'desc': 'asc'}[order_type]
+
+        # build new ordering param
+        o_list_primary = []  # URL for making this field the primary sort
+        o_list_toggle = []  # URL for toggling order type for this field
+        make_qs_param = lambda t, n: ('-' if t == 'desc' else '') + str(n)
+
+        for j, ot in ordering_field_columns.items():
+            if j == i:  # Same column
+                param = make_qs_param(new_order_type, j)
+                # We want clicking on this header to bring the ordering to the
+                # front
+                o_list_primary.insert(0, param)
+            else:
+                param = make_qs_param(ot, j)
+                o_list_primary.append(param)
+                o_list_toggle.append(param)
+
+        if i not in ordering_field_columns:
+            o_list_primary.insert(0, make_qs_param(new_order_type, i))
+
+        yield {
+            "text": text,
+            "sortable": True,
+            "sorted": sorted,
+            "ascending": order_type == "asc",
+            "url_primary": cl.get_query_string({ORDER_VAR: '.'.join(o_list_primary)}),
+            "url_toggle": cl.get_query_string({ORDER_VAR: '.'.join(o_list_toggle)}),
+            "class_attrib": format_html(' class="{0}"', ' '.join(th_classes)) if th_classes else '',
+        }
+
+
+@register.inclusion_tag('sorting/change_list_headers.html')
+def result_headers(cl):
+    """
+    Displays the headers and data list together
+    """
+    headers = list(result_headers(cl))
+    sorted_fields = False
+    for h in headers:
+        if h['sortable'] and h['sorted']:
+            sorted_fields = True
+    return {'cl': cl,
+            'result_headers': headers,
+            'sorted_fields': sorted_fields}
 
 # TO-DO: receive a list and make a for in the template
 @register.inclusion_tag('sorting/sort_link_frag.html', takes_context=True)
@@ -8,13 +98,9 @@ def sort_link(context, text, sort_field, visible_name=None):
     """Usage: {% sort_link "text" "field_name" %}
     Usage: {% sort_link "text" "field_name" "Visible name" %}
     """
-    # general and outside FOR
     sorted_fields = False
-    # specific to the field
     ascending = None
-    # specific to the field
     class_attrib = 'sortable'
-    # specific to the field
     orig_sort_field = sort_field
     if context.get('current_sort_field') == sort_field:
         sort_field = '-%s'%sort_field
